@@ -20,20 +20,14 @@ app.listen(3001, () => {
 
 console.log("cpus", cpus().length);
 
-const worker = new Worker("./src/jobs/cajero.jobs.js");
-worker.postMessage({ msg: "init", nroWorker: 1 });
-
-//await jobs.atenderCliente(1);
+//worker.postMessage({ msg: "init", nroWorker: 1 });
 
 let c = 1;
 
+const myWorkers = [];
 setInterval(() => {
+  const worker = new Worker("./src/jobs/cajero.jobs.js");
   worker.postMessage({ msg: "init", nroWorker: c });
+  myWorkers.push(worker);
   c++;
 }, paramsConfig.params.tiempoEntreHiloPadre);
-
-// worker.on("message", (data) => {
-//   console.log("Mensaje recibido en el parent ", data);
-// });
-
-//await jobs.atenderCliente();
