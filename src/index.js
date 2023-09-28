@@ -24,10 +24,10 @@ console.log("cpus", cpus().length);
 
 let c = 1;
 
-const myWorkers = [];
-setInterval(() => {
+const workersArray = [];
+while (c <= paramsConfig.params.cantidadHilos) {
   const worker = new Worker("./src/jobs/cajero.jobs.js");
+  workersArray.push(worker);
   worker.postMessage({ msg: "init", nroWorker: c });
-  myWorkers.push(worker);
   c++;
-}, paramsConfig.params.tiempoEntreHiloPadre);
+}
