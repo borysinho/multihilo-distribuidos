@@ -1,9 +1,18 @@
 import axios from "axios";
 import dotenv from "dotenv";
+import axiosRetry from "axios-retry";
 
 dotenv.config();
 
 let personas;
+
+axiosRetry(axios, {
+  retries: -1,
+  retryDelay: (retryCount) => {
+    console.log(`reintentando por: ${retryCount}`);
+    return retryCount + 500;
+  },
+});
 
 const tieneDeudasLocal = () => {
   try {
@@ -11,7 +20,19 @@ const tieneDeudasLocal = () => {
 
     //console.log("Personas con deuda: ", count);
   } catch (error) {
-    console.log("error", error);
+    if (error.response) {
+      //El servidor respondió con un estado HTTP diferente
+      console.error(
+        "Error en la respuesta del servidor: ",
+        error.response.status
+      );
+    } else if (error.request) {
+      //la solicitud no pudo llegar al servidor o no recibió la respuesta
+      console.error("Error en la solicitud al servidor:", error.message);
+    } else {
+      // otros errors
+      console.error("Error:", error.message);
+    }
   }
 };
 
@@ -22,7 +43,7 @@ const getPersonas = () => {
 const loadPersonas = async () => {
   try {
     const remoteURL =
-      process.env.RS_PERSONAS || "http://localhost:3000/api/personas";
+      process.env.RS_PERSONAS || "192.168.1.1:3000/api/personas";
 
     const aux = (
       await axios.get(remoteURL, {
@@ -36,7 +57,19 @@ const loadPersonas = async () => {
 
     return personas;
   } catch (error) {
-    console.log("Error", error);
+    if (error.response) {
+      //El servidor respondió con un estado HTTP diferente
+      console.error(
+        "Error en la respuesta del servidor: ",
+        error.response.status
+      );
+    } else if (error.request) {
+      //la solicitud no pudo llegar al servidor o no recibió la respuesta
+      console.error("Error en la solicitud al servidor:", error.message);
+    } else {
+      // otros errors
+      console.error("Error:", error.message);
+    }
   }
 };
 
