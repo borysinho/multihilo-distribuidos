@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import helpers from "../helpers/cajero.helpers.js";
 import paramsConfig from "../config/params.config.js";
 import hash from "object-hash";
+import axiosRetry from "axios-retry";
 
 dotenv.config();
 
@@ -43,43 +44,80 @@ const pagoDeuda = async (req) => {
     const body = {
       deudaId: req.id,
       monto: montoAPagar,
-      // pagoHash,
+      pagoHash,
     };
+    // try {
+    //   axiosRetry(axios, {
+    //     retryDelay: (retryCount) => {
+    //       return retryCount * 1000;
+    //     },
+    //   });
+    // console.log("body", body);
+    try {
+      // axiosRetry(axios, {
+      //   retryDelay: (retryCount) => {
+      //     return retryCount * 1000;
+      //   },
+      // });
+      const result = await axios.post(remoteURL, body);
+      // console.log("result", result);
+      //axiosRetry(axios, { retries: 3 });
+      return result.data;
+    } catch (error) {
+      throw error;
+    }
+
+    // axiosRetry(client, { retries: 3 });
+
+    // client
+    //   .post(remoteURL, body)
+    //   .then((result) => res.send(result.data))
+    //   .catch((error) => {
+    //     throw error;
+    //   });
 
     //Realizando Solicitud...
-    const sendRequest = async () => {
-      try {
-        const response = await axios.post(remoteURL, body);
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
-    };
 
-    let retries = 0;
-    while (retries < maxRetries) {
-      try {
-        //verificar si la solicitud ya se ejecutó en el servidor
-        if (!requestStatusMap.has(pagoHash)) {
-          const result = await sendRequest();
-          requestStatusMap.set(pagoHash, true);
-          return result;
-        } else {
-          console.log(
-            `La solicitud para deudaID ${body.deudaId} ya se ha ejecutado, no es necesario volver a hacerlo`
-          );
-          return null;
-        }
-      } catch (error) {
-        console.log(
-          `Error en la solicitud : ${body.deudaId}. Reintentando en ${
-            retryInterval / 1000
-          } segundos...`
-        );
-        await new Promise((resolve) => setTimeout(resolve, retryInterval));
-        retries++;
-      }
-    }
+    // const sendRequest = async () => {
+    //   try {
+    //     // axiosRetry(axios, {
+    //     //   retryDelay: (retryCount) => {
+    //     //     return retryCount * 1000;
+    //     //   },
+    //     // });
+    //     console.log("body", body);
+    //     res.json(await axios.post(remoteURL, JSON(body)));
+    //     // const response = await axios.post(remoteURL, body);
+    //     // return response.data;
+    //   } catch (error) {
+    //     throw error;
+    //   }
+    // };
+
+    // let retries = 0;
+    // while (retries < maxRetries) {
+    //   try {
+    //     //verificar si la solicitud ya se ejecutó en el servidor
+    //     if (!requestStatusMap.has(pagoHash)) {
+    //       const result = await sendRequest();
+    //       requestStatusMap.set(pagoHash, true);
+    //       return result;
+    //     } else {
+    //       console.log(
+    //         `La solicitud para deudaID ${body.deudaId} ya se ha ejecutado, no es necesario volver a hacerlo`
+    //       );
+    //       return null;
+    //     }
+    //   } catch (error) {
+    //     console.log(
+    //       `Error en la solicitud : ${body.deudaId}. Reintentando en ${
+    //         retryInterval / 1000
+    //       } segundos...`
+    //     );
+    //     await new Promise((resolve) => setTimeout(resolve, retryInterval));
+    //     retries++;
+    //   }
+    // }
   } catch (error) {
     if (error.response) {
       //El servidor respondió con un estado HTTP diferente

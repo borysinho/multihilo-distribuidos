@@ -2,7 +2,7 @@ import { Router, json } from "express";
 
 const router = Router();
 
-router.use("/cajero", () => {
+router.get("/cajero", () => {
   console.log("/cajero");
 });
 

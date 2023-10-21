@@ -25,7 +25,7 @@ const atenderCliente = async (nroWorker) => {
 
       //Buscamos en la API si tiene deudas
       const deudasApi = await deudas.getDeudas(clienteLocal.id);
-      //console.log("Deudas", deudasApi.Deudas);
+      // console.log("Deudas", deudasApi.Deudas);
 
       //Tiene deudas?
       if (deudasApi.Deudas.length > 0) {
@@ -35,15 +35,19 @@ const atenderCliente = async (nroWorker) => {
             helpers.generarMontoAleatorio(1, deudasApi.Deudas.length) - 1
           ];
         //Pagamos la deuda
-        console.log("deudaAPagar", deudaAPagar);
-        const res = {};
+        //console.log("deudaAPagar", deudaAPagar);
 
         //Pago y devuelve si tiene saldo
-        //console.log("await deudas.pagoDeuda(deudaAPagar, res);");
-        await deudas.pagoDeuda(deudaAPagar, res);
-        console.log(
-          `PAGANDO DEUDA: [Hilo ${nroWorker}] [ID Deuda: ${deudaAPagar.id}] [Cliente: ${clienteLocal.nombre} ${clienteLocal.apellido}]`
-        );
+        // console.log("await deudas.pagoDeuda(deudaAPagar, res);");
+
+        try {
+          // console.log("Antes de: await deudas.pagoDeuda(deudaAPagar)");
+          const res = await deudas.pagoDeuda(deudaAPagar);
+          // console.log("Despues de await deudas.pagoDeuda(deudaAPagar)");
+          console.log(
+            `Pago en procesamiento - [Tx: ${res.pagoHash}] [Hilo ${nroWorker}] [ID Deuda: ${deudaAPagar.id}] [Cliente: ${clienteLocal.nombre} ${clienteLocal.apellido}]`
+          );
+        } catch (error) {}
       } else {
         console.log(
           `CLIENTE SIN DEUDAS PENDIENTES: [Hilo: ${nroWorker}] [Cliente: ${clienteLocal.nombre} ${clienteLocal.apellido}]`
@@ -59,6 +63,7 @@ const atenderCliente = async (nroWorker) => {
 
 parentPort.on("message", async (data) => {
   if (data.msg === "init") {
+    console.log("parentPort.on");
     atenderCliente(data.nroWorker);
   }
 });
