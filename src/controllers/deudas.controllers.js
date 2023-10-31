@@ -1,9 +1,10 @@
 import axios from "axios";
-import dotenv from "dotenv";
+import dotenv, { config } from "dotenv";
 import helpers from "../helpers/cajero.helpers.js";
 import paramsConfig from "../config/params.config.js";
 import hash from "object-hash";
 import axiosRetry from "axios-retry";
+import messages from "../services/messages.services.js";
 
 dotenv.config();
 
@@ -24,8 +25,7 @@ const pagoDeuda = async (req) => {
   const retryInterval = 1000; // Milisegundos entre intentos
 
   try {
-    const remoteURL =
-      process.env.RS_PAGO || "http://192.168.1.126:8081/api/pagos";
+    const remoteURL = process.env.RS_PAGO || "http://localhost:3001/api/pagos";
 
     const mpt = paramsConfig.params.randomMaxPagoTotal;
 
@@ -45,20 +45,9 @@ const pagoDeuda = async (req) => {
       deudaId: req.id,
       monto: montoAPagar,
       pagoHash,
+      responseURL: "http://localhost:3001/api/messages",
     };
-    // try {
-    //   axiosRetry(axios, {
-    //     retryDelay: (retryCount) => {
-    //       return retryCount * 1000;
-    //     },
-    //   });
-    // console.log("body", body);
     try {
-      // axiosRetry(axios, {
-      //   retryDelay: (retryCount) => {
-      //     return retryCount * 1000;
-      //   },
-      // });
       const result = await axios.post(remoteURL, body);
       // console.log("result", result);
       //axiosRetry(axios, { retries: 3 });
@@ -141,8 +130,8 @@ const getDeudas = async (id) => {
 
   try {
     const remoteURL =
-      (process.env.RS_DEUDA ||
-        "http://192.168.1.126:8081/api/deudas/persona/") + +id;
+      (process.env.RS_DEUDA || "http://localhost:3000/api/deudas/persona/") +
+      +id;
 
     const params = { answer: 42 };
 

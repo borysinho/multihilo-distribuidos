@@ -14,7 +14,8 @@ const escogerCliente = async () => {
 
     return p[helpers.generarMontoAleatorio(1, 100) - 1];
   } catch (error) {
-    console.log("Este es el error:", error);
+    throw error;
+    //console.log("Este es el error:", error);
   }
 };
 
@@ -44,9 +45,9 @@ const atenderCliente = async (nroWorker) => {
           // console.log("Antes de: await deudas.pagoDeuda(deudaAPagar)");
           const res = await deudas.pagoDeuda(deudaAPagar);
           // console.log("Despues de await deudas.pagoDeuda(deudaAPagar)");
-          console.log(
-            `Pago en procesamiento - [Tx: ${res.pagoHash}] [Hilo ${nroWorker}] [ID Deuda: ${deudaAPagar.id}] [Cliente: ${clienteLocal.nombre} ${clienteLocal.apellido}]`
-          );
+          // console.log(
+          //   `Pago en procesamiento - [Tx: ${res.pagoHash}] [Hilo ${nroWorker}] [ID Deuda: ${deudaAPagar.id}] [Cliente: ${clienteLocal.nombre} ${clienteLocal.apellido}]`
+          // );
         } catch (error) {}
       } else {
         console.log(
@@ -62,7 +63,7 @@ const atenderCliente = async (nroWorker) => {
 };
 
 parentPort.on("message", async (data) => {
-  if (data.msg === "init") {
+  if (data.msg === "init" && !isMainThread) {
     console.log("parentPort.on");
     atenderCliente(data.nroWorker);
   }
