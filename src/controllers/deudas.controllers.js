@@ -25,7 +25,7 @@ const pagoDeuda = async (req) => {
   const retryInterval = 1000; // Milisegundos entre intentos
 
   try {
-    const remoteURL = process.env.RS_PAGO || "http://localhost:3001/api/pagos";
+    const remoteURL = paramsConfig.server.RS_PAGO;
 
     const mpt = paramsConfig.params.randomMaxPagoTotal;
 
@@ -45,10 +45,12 @@ const pagoDeuda = async (req) => {
       deudaId: req.id,
       monto: montoAPagar,
       pagoHash,
-      responseURL: "http://localhost:3001/api/messages",
+      responseURL: paramsConfig.server.LS_MESSAGES,
     };
     try {
+      // await axios.post(remoteURL, body);
       const result = await axios.post(remoteURL, body);
+      console.log("result.status()", result.status());
       // console.log("result", result);
       //axiosRetry(axios, { retries: 3 });
       return result.data;

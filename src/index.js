@@ -30,13 +30,13 @@ console.log("cpus", cpus().length);
 
 // worker.postMessage({ msg: "init", nroWorker: 1 });
 
-// let c = 1;
+let c = 1;
 
-// const workersArray = [];
+const workersArray = [];
 
-// while (c <= paramsConfig.params.cantidadHilos) {
-//   const worker = new Worker("./src/jobs/cajero.jobs.js");
-//   workersArray.push(worker);
-//   worker.postMessage({ msg: "init", nroWorker: c });
-//   c++;
-// }
+while (c <= paramsConfig.params.cantidadHilos) {
+  const worker = new Worker("./src/jobs/cajero.jobs.js");
+  workersArray.push(worker);
+  worker.postMessage({ msg: "init", nroWorker: c });
+  c++;
+}
